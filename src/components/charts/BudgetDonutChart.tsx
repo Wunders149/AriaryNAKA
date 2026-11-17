@@ -94,13 +94,11 @@ export const BudgetDonutChart: React.FC<BudgetDonutChartProps> = ({
     : null;
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-6">
-      <div className="relative shrink-0" style={{ width: size, height: size }}>
+    <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
+      <div className="relative shrink-0 w-[196px] h-[196px] sm:w-[232px] sm:h-[232px]">
         <svg
-          width={size}
-          height={size}
           viewBox={`0 0 ${size} ${size}`}
-          className="-rotate-90 overflow-visible"
+          className="w-full h-full -rotate-90 overflow-visible"
           role="img"
           aria-label="Graphique en anneau de répartition budgétaire 50/30/20"
         >
@@ -174,10 +172,10 @@ export const BudgetDonutChart: React.FC<BudgetDonutChartProps> = ({
         </svg>
 
         {/* Center Readout */}
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center px-6 sm:px-8">
           {activeSegment ? (
             <>
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
+              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[110px]">
                 {activeSegment.label}
               </span>
               <span className="mt-0.5 font-mono text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
@@ -192,7 +190,7 @@ export const BudgetDonutChart: React.FC<BudgetDonutChartProps> = ({
               <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                 Revenus du mois
               </span>
-              <span className="mt-0.5 font-mono text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+              <span className="mt-0.5 font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                 {formatAriaryCompact(totalIncome)}
               </span>
               <span className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
@@ -206,9 +204,9 @@ export const BudgetDonutChart: React.FC<BudgetDonutChartProps> = ({
       </div>
 
       {/* Legend & Real vs Target table */}
-      <div className="flex-1 w-full space-y-3">
+      <div className="flex-1 w-full space-y-2 sm:space-y-3">
         <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pb-1 border-b border-slate-200 dark:border-slate-800">
-          <span>Enveloppe (Anneau ext. réel / int. cible)</span>
+          <span>Enveloppe (réel / cible)</span>
           <span className="font-mono">Réel vs Cible</span>
         </div>
         {BUCKET_ORDER.map((key) => {
@@ -222,7 +220,7 @@ export const BudgetDonutChart: React.FC<BudgetDonutChartProps> = ({
               onMouseEnter={() => setHovered(key)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => onSelectBucket?.(key)}
-              className={`w-full flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left transition-colors ${
+              className={`w-full min-h-[48px] flex items-center justify-between gap-2 sm:gap-3 rounded-lg px-2.5 py-2 text-left transition-colors ${
                 isHovered
                   ? 'bg-slate-100 dark:bg-slate-800/80'
                   : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
@@ -237,17 +235,17 @@ export const BudgetDonutChart: React.FC<BudgetDonutChartProps> = ({
                   <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                     {meta.shortLabel} ({b.targetPercent}%)
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums truncate">
                     Cible : {formatAriary(b.targetAmount)}
                   </div>
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className="text-sm font-mono font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                <div className="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                   {formatAriary(b.actualAmount)}
                 </div>
                 <div className="text-xs font-mono text-slate-500 dark:text-slate-400 tabular-nums">
-                  {formatPercent(b.actualPercentOfIncome, 1)} du revenu
+                  {formatPercent(b.actualPercentOfIncome, 1)}
                 </div>
               </div>
             </button>

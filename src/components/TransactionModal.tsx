@@ -172,16 +172,20 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-[1px]"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/50 p-0 sm:p-4 backdrop-blur-[1px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="tx-modal-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-xl max-h-[92dvh] flex flex-col overflow-hidden animate-sheet-up">
+        <div className="sm:hidden mx-auto mt-2.5 h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700 shrink-0" aria-hidden="true" />
+        <div className="flex items-center justify-between gap-4 px-5 py-3.5 sm:px-6 sm:py-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
           <h2
             id="tx-modal-title"
-            className="font-display text-lg font-semibold text-slate-900 dark:text-slate-100"
+            className="font-display text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100"
           >
             {editingTransaction ? 'Modifier l’opération' : 'Nouvelle opération'}
           </h2>
@@ -189,18 +193,18 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Fermer la fenêtre"
-            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+            className="h-11 w-11 sm:h-9 sm:w-9 -mr-2 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5 sm:h-4 sm:w-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <form onSubmit={handleSubmit} className="overflow-y-auto px-5 py-4 sm:p-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-6 space-y-4">
           <div className="grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
             <button
               type="button"
               onClick={() => handleKindChange('expense')}
-              className={`rounded-md py-2 text-sm font-medium transition-colors ${
+              className={`min-h-[42px] sm:min-h-[36px] rounded-md py-2 text-sm font-medium transition-colors ${
                 kind === 'expense'
                   ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -211,7 +215,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <button
               type="button"
               onClick={() => handleKindChange('income')}
-              className={`rounded-md py-2 text-sm font-medium transition-colors ${
+              className={`min-h-[42px] sm:min-h-[36px] rounded-md py-2 text-sm font-medium transition-colors ${
                 kind === 'income'
                   ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -235,7 +239,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                       key={b}
                       type="button"
                       onClick={() => handleBucketChange(b)}
-                      className={`rounded-lg border px-3 py-2 text-left transition-colors ${
+                      className={`min-h-[52px] sm:min-h-[48px] rounded-lg border px-2.5 sm:px-3 py-2 text-left transition-colors ${
                         active
                           ? 'border-teal-700 bg-teal-50/70 text-slate-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-slate-100'
                           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700'
@@ -276,7 +280,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   ? 'Ex. Salaire mensuel, Vente, Prime...'
                   : 'Ex. Courses Analakely, Facture JIRAMA...'
               }
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
 
@@ -292,12 +296,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 <input
                   id="tx-amount"
                   type="number"
+                  inputMode="numeric"
                   min={1}
                   step={100}
                   value={amountStr}
                   onChange={(e) => setAmountStr(e.target.value)}
                   placeholder="50000"
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 pr-10 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 tabular-nums"
+                  className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 pr-10 font-mono text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 tabular-nums"
                 />
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs text-slate-500">
                   Ar
@@ -322,7 +327,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </div>
           </div>
@@ -339,7 +344,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setCreatingCat((v) => !v)}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline dark:text-teal-400"
+                  className="min-h-[32px] inline-flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline dark:text-teal-400"
                 >
                   <Plus className="h-3 w-3" />
                   {creatingCat ? 'Annuler' : 'Catégorie personnalisée'}
@@ -355,12 +360,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   value={newCatName}
                   onChange={(e) => setNewCatName(e.target.value)}
                   placeholder="Nom de la nouvelle catégorie"
-                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-teal-700 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                  className="flex-1 min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 focus:border-teal-700 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                 />
                 <button
                   type="button"
                   onClick={handleQuickCreateCategory}
-                  className="rounded-lg bg-teal-700 px-3 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-600"
+                  className="min-h-[44px] sm:min-h-[38px] rounded-lg bg-teal-700 px-3.5 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-600"
                 >
                   Créer
                 </button>
@@ -374,7 +379,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                     : availableCategories[0]
                 }
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
                 {availableCategories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -397,7 +402,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 id="tx-goal"
                 value={goalId}
                 onChange={(e) => setGoalId(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
                 <option value="">Aucun objectif lié</option>
                 {goals.map((g) => (
@@ -423,7 +428,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Précision, moyen de paiement (MVola, espèces, virement)..."
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
 
@@ -433,19 +438,19 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </p>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 whitespace-nowrap"
+              className="min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 whitespace-nowrap"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:bg-teal-600 dark:hover:bg-teal-500 whitespace-nowrap"
+              className="min-h-[44px] sm:min-h-[38px] rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:bg-teal-600 dark:hover:bg-teal-500 whitespace-nowrap"
             >
-              {editingTransaction ? 'Enregistrer' : 'Ajouter l’opération'}
+              {editingTransaction ? 'Enregistrer' : 'Ajouter'}
             </button>
           </div>
         </form>

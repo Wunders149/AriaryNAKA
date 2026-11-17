@@ -125,12 +125,12 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
           Synchronisation et sauvegarde
         </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 break-words">
           Vos données sont synchronisées en temps réel sur Cloud Firestore pour votre compte Google ({profile.email}) et restent exportables à tout moment.
         </p>
       </div>
@@ -149,7 +149,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
       )}
 
       {/* Sync Inventory */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-2.5 pb-4 border-b border-slate-200 dark:border-slate-800">
           <Cloud className="h-4 w-4 text-teal-700 dark:text-teal-400" />
           <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
@@ -157,7 +157,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
           </h2>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div className="mt-4 sm:mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
           <div>
             <span className="text-xs text-slate-500 dark:text-slate-400">
               Opérations
@@ -194,7 +194,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
       </section>
 
       {localBackup && localBackup.transactions.length > 0 && (
-        <section className="rounded-xl border border-teal-200 bg-teal-50/60 p-5 dark:border-teal-900/60 dark:bg-teal-950/30 flex flex-wrap items-center justify-between gap-4">
+        <section className="rounded-xl border border-teal-200 bg-teal-50/60 p-4 sm:p-5 dark:border-teal-900/60 dark:bg-teal-950/30 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-sm font-semibold text-slate-900 dark:text-slate-100">
               Données locales détectées sur cet appareil
@@ -207,7 +207,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
             type="button"
             disabled={busy}
             onClick={handleMigrateLocal}
-            className="rounded-lg bg-teal-700 px-4 py-2 text-xs font-medium text-white hover:bg-teal-800 disabled:opacity-50 dark:bg-teal-600"
+            className="w-full sm:w-auto min-h-[44px] sm:min-h-[36px] rounded-lg bg-teal-700 px-4 py-2 text-xs font-medium text-white hover:bg-teal-800 disabled:opacity-50 dark:bg-teal-600"
           >
             Importer mes données locales
           </button>
@@ -215,8 +215,8 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
       )}
 
       {/* Export / Import */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
           <div>
             <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
               Exporter vos données
@@ -226,11 +226,11 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
             </p>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={handleDownloadJson}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+              className="min-h-[44px] sm:min-h-[36px] inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
             >
               <Download className="h-3.5 w-3.5" />
               Sauvegarde JSON
@@ -238,7 +238,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
             <button
               type="button"
               onClick={handleDownloadCsv}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="min-h-[44px] sm:min-h-[36px] inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" />
               Export CSV (Excel)
@@ -246,7 +246,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+        <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
           <div>
             <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
               Restaurer une sauvegarde
@@ -256,7 +256,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
             </p>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-5 sm:mt-6">
             <input
               ref={fileInputRef}
               type="file"
@@ -268,7 +268,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
               type="button"
               disabled={busy}
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="w-full sm:w-auto min-h-[44px] sm:min-h-[36px] inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-800 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               <Upload className="h-3.5 w-3.5" />
               {busy ? 'Importation...' : 'Importer un fichier JSON'}
@@ -278,7 +278,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
       </div>
 
       {/* Reset Workspace */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
           Réinitialisation du compte
         </h2>
@@ -288,8 +288,8 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {confirmClear ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-red-700 dark:text-red-400">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <span className="text-xs font-medium text-red-700 dark:text-red-400 w-full sm:w-auto">
                 Confirmer la suppression définitive de toutes vos données ?
               </span>
               <button
@@ -313,14 +313,14 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
                     setBusy(false);
                   }
                 }}
-                className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="flex-1 sm:flex-none min-h-[44px] sm:min-h-[34px] rounded-lg bg-red-600 px-3.5 py-2 sm:py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
               >
                 Confirmer l’effacement
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmClear(false)}
-                className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="flex-1 sm:flex-none min-h-[44px] sm:min-h-[34px] rounded-lg border border-slate-300 px-3.5 py-2 sm:py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Annuler
               </button>
@@ -330,7 +330,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
               type="button"
               disabled={busy}
               onClick={() => setConfirmClear(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/60 dark:bg-slate-950 dark:text-red-400 dark:hover:bg-red-950/40"
+              className="w-full sm:w-auto min-h-[44px] sm:min-h-[36px] inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/60 dark:bg-slate-950 dark:text-red-400 dark:hover:bg-red-950/40"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Effacer toutes les données du compte

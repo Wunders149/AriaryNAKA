@@ -66,15 +66,13 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
       {/* Custom SVG Donut */}
       <div className="lg:col-span-5 flex justify-center">
-        <div className="relative" style={{ width: size, height: size }}>
+        <div className="relative w-[192px] h-[192px] sm:w-[220px] sm:h-[220px]">
           <svg
-            width={size}
-            height={size}
             viewBox={`0 0 ${size} ${size}`}
-            className="-rotate-90 overflow-visible"
+            className="w-full h-full -rotate-90 overflow-visible"
             role="img"
             aria-label="Graphique des dépenses par catégorie"
           >
@@ -111,10 +109,10 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
             })}
           </svg>
 
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center px-6 sm:px-8">
             {activeItem ? (
               <>
-                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[116px]">
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[110px]">
                   {activeItem.category}
                 </span>
                 <span className="mt-0.5 font-mono text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
@@ -129,7 +127,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                 <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   Total classé
                 </span>
-                <span className="mt-0.5 font-mono text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                <span className="mt-0.5 font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
                   {formatAriaryCompact(total)}
                 </span>
                 <span className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
@@ -142,7 +140,7 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
       </div>
 
       {/* Horizontal Ranked Category Bars */}
-      <div className="lg:col-span-7 space-y-3">
+      <div className="lg:col-span-7 space-y-2 sm:space-y-3">
         {items.map((item) => {
           const isHovered = hoveredCat === item.category;
           return (
@@ -152,13 +150,13 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
               onMouseEnter={() => setHoveredCat(item.category)}
               onMouseLeave={() => setHoveredCat(null)}
               onClick={() => onSelectCategory?.(item.category)}
-              className={`w-full text-left rounded-lg px-2.5 py-2 transition-colors ${
+              className={`w-full min-h-[48px] text-left rounded-lg px-2.5 py-2 transition-colors ${
                 isHovered
                   ? 'bg-slate-100 dark:bg-slate-800/70'
                   : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
               }`}
             >
-              <div className="flex items-center justify-between gap-3 text-xs mb-1.5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-xs mb-1.5">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="h-2.5 w-2.5 rounded-sm shrink-0"
@@ -168,10 +166,10 @@ export const CategoryBreakdownChart: React.FC<CategoryBreakdownChartProps> = ({
                     {item.category}
                   </span>
                   <span className="text-slate-400 dark:text-slate-500 shrink-0">
-                    · {BUCKET_META[item.bucket].shortLabel} · {item.count} op.
+                    · {BUCKET_META[item.bucket].shortLabel} · {item.count}
                   </span>
                 </div>
-                <div className="font-mono tabular-nums shrink-0 text-slate-900 dark:text-slate-100">
+                <div className="font-mono tabular-nums shrink-0 text-slate-900 dark:text-slate-100 ml-auto">
                   <span className="font-semibold">{formatAriary(item.amount)}</span>
                   <span className="text-slate-500 dark:text-slate-400 ml-1.5">
                     ({formatPercent(item.percentOfExpenses, 1)})

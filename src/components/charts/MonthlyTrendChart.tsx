@@ -14,13 +14,14 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
   onSelectMonth,
 }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
-  const width = 640;
-  const height = 260;
-  const padLeft = 64;
-  const padRight = 18;
-  const padTop = 20;
-  const padBottom = 34;
+  const width = 560;
+  const height = 240;
+  const padLeft = 50;
+  const padRight = 12;
+  const padTop = 16;
+  const padBottom = 30;
   const plotW = width - padLeft - padRight;
   const plotH = height - padTop - padBottom;
 
@@ -39,8 +40,8 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
   }));
 
   const groupWidth = plotW / Math.max(1, data.length);
-  const barWidth = Math.min(22, groupWidth * 0.24);
-  const barGap = 5;
+  const barWidth = Math.min(22, groupWidth * 0.26);
+  const barGap = 4;
 
   const toY = (v: number) => padTop + plotH - (Math.max(0, v) / niceMax) * plotH;
 
@@ -53,13 +54,16 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
     })
     .join(' ');
 
-  const activePoint = hoveredIdx !== null ? data[hoveredIdx] : null;
+  const activeMonthIdx = data.findIndex((d) => d.monthKey === activeMonthKey);
+  const effectiveIdx =
+    hoveredIdx ?? selectedIdx ?? (activeMonthIdx >= 0 ? activeMonthIdx : null);
+  const activePoint = effectiveIdx !== null ? data[effectiveIdx] : null;
 
   return (
     <div className="space-y-3">
-      {/* Legend + Hover Inspection Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex flex-wrap items-center gap-4 text-slate-600 dark:text-slate-400">
+      {/* Legend + Inspection Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-slate-600 dark:text-slate-400">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-sm bg-slate-800 dark:bg-slate-200" />
             Revenus
@@ -78,26 +82,16 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
           </span>
         </div>
 
-        <div className="font-mono text-xs text-slate-600 dark:text-slate-300 tabular-nums min-h-[18px]">
-          {activePoint ? (
-            <span>
-              {activePoint.label} · Rev {formatAriaryCompact(activePoint.income)} · Dép{' '}
-              {formatAriaryCompact(activePoint.needs + activePoint.wants)} · Épargne{' '}
-              {formatAriaryCompact(activePoint.savings)}
-            </span>
-          ) : (
-            <span className="text-slate-400 dark:text-slate-500">
-              Survolez un mois pour le détail
-            </span>
-          )}
-        </div>
+        <span className="text-[11px] text-slate-400 dark:text-slate-500">
+          Touchez un mois pour afficher son détail
+        </span>
       </div>
 
-      {/* SVG Canvas */}
-      <div className="relative w-full overflow-x-auto">
+      {/* Responsive SVG Canvas (no horizontal overflow on mobile) */}
+      <div className="relative w-full">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto min-w-[460px] select-none"
+          className="w-full h-auto select-none"
           role="img"
           aria-label="Évolution mensuelle des revenus, dépenses et épargne sur 6 mois"
         >
@@ -118,10 +112,10 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
                 }
               />
               <text
-                x={padLeft - 8}
+                x={padLeft - 6}
                 y={tick.y + 4}
                 textAnchor="end"
-                className="fill-slate-500 dark:fill-slate-400 text-[10px] font-mono"
+                className="fill-slate-500 dark:fill-slate-400 text-[11px] font-mono"
               >
                 {tick.value === 0 ? '0' : formatAriaryCompact(tick.value).replace(' Ar', '')}
               </text>
@@ -131,7 +125,7 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
           {/* Grouped bars per month */}
           {data.map((d, idx) => {
             const cx = padLeft + groupWidth * idx + groupWidth / 2;
-            const isHovered = hoveredIdx === idx;
+            const isHovered = effectiveIdx === idx;
             const isActiveMonth = d.monthKey === activeMonthKey;
 
             const incomeH = Math.max(0, padTop + plotH - toY(d.income));
@@ -153,13 +147,16 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
                 className="cursor-pointer"
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
-                onClick={() => onSelectMonth?.(d.monthKey)}
+                onClick={() => {
+                  setSelectedIdx(idx);
+                  onSelectMonth?.(d.monthKey);
+                }}
               >
-                {/* Hover highlight column */}
+                {/* Hover / tap highlight column */}
                 <rect
-                  x={padLeft + groupWidth * idx + 4}
+                  x={padLeft + groupWidth * idx + 3}
                   y={padTop}
-                  width={groupWidth - 8}
+                  width={groupWidth - 6}
                   height={plotH}
                   rx={6}
                   className={
@@ -179,7 +176,7 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
                   height={incomeH}
                   rx={3}
                   className="fill-slate-800 dark:fill-slate-200 transition-opacity duration-150"
-                  opacity={hoveredIdx !== null && !isHovered ? 0.45 : 1}
+                  opacity={hoveredIdx !== null && hoveredIdx !== idx ? 0.45 : 1}
                 />
 
                 {/* Stacked 50/30/20 Bar */}
@@ -190,7 +187,7 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
                   height={needsH}
                   rx={needsH > 2 && wantsH === 0 && savingsH === 0 ? 3 : 0}
                   fill="#2563EB"
-                  opacity={hoveredIdx !== null && !isHovered ? 0.45 : 1}
+                  opacity={hoveredIdx !== null && hoveredIdx !== idx ? 0.45 : 1}
                 />
                 <rect
                   x={expenseX}
@@ -198,7 +195,7 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
                   width={barWidth}
                   height={wantsH}
                   fill="#D97706"
-                  opacity={hoveredIdx !== null && !isHovered ? 0.45 : 1}
+                  opacity={hoveredIdx !== null && hoveredIdx !== idx ? 0.45 : 1}
                 />
                 <rect
                   x={expenseX}
@@ -207,16 +204,16 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
                   height={savingsH}
                   rx={savingsH > 2 ? 2 : 0}
                   fill="#059669"
-                  opacity={hoveredIdx !== null && !isHovered ? 0.45 : 1}
+                  opacity={hoveredIdx !== null && hoveredIdx !== idx ? 0.45 : 1}
                 />
 
                 {/* Month label */}
                 <text
                   x={cx}
-                  y={height - 10}
+                  y={height - 8}
                   textAnchor="middle"
-                  className={`text-[11px] font-medium ${
-                    isActiveMonth
+                  className={`text-[12px] font-medium ${
+                    isActiveMonth || isHovered
                       ? 'fill-teal-700 dark:fill-teal-400 font-semibold'
                       : 'fill-slate-500 dark:fill-slate-400'
                   }`}
@@ -244,7 +241,7 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
           {data.map((d, idx) => {
             const cx = padLeft + groupWidth * idx + groupWidth / 2;
             const cy = toY(d.savings);
-            const isHovered = hoveredIdx === idx;
+            const isHovered = effectiveIdx === idx;
             return (
               <circle
                 key={`dot-${d.monthKey}`}
@@ -261,7 +258,7 @@ export const MonthlyTrendChart: React.FC<MonthlyTrendChartProps> = ({
 
       {/* Selected or hovered detail strip */}
       {activePoint && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs">
           <div>
             <span className="text-slate-500 dark:text-slate-400">Revenus ({activePoint.label})</span>
             <p className="font-mono font-semibold text-slate-900 dark:text-slate-100 tabular-nums">

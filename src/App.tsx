@@ -485,32 +485,32 @@ export default function App() {
         />
       )}
 
-      {/* Sidebar Navigation */}
+      {/* Sidebar / Mobile Drawer Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between transition-transform duration-200 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-64 border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between transition-transform duration-200 lg:static lg:translate-x-0 pb-[env(safe-area-inset-bottom)] lg:pb-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div>
-          <div className="flex h-16 items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
+        <div className="overflow-y-auto">
+          <div className="flex h-14 lg:h-16 items-center justify-between px-5 sm:px-6 border-b border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => handleNavigate('dashboard')}
-              className="font-display text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap"
+              className="min-h-[44px] flex items-center font-display text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap"
             >
-              Ariary <span className="text-teal-700 dark:text-teal-400">50/30/20</span>
+              Ariary <span className="text-teal-700 dark:text-teal-400 ml-1">50/30/20</span>
             </button>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
               aria-label="Fermer le menu"
-              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
+              className="h-11 w-11 -mr-2 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          <nav aria-label="Navigation principale" className="p-4 space-y-1">
+          <nav aria-label="Navigation principale" className="p-3 sm:p-4 space-y-1">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
@@ -519,7 +519,7 @@ export default function App() {
                   key={item.id}
                   type="button"
                   onClick={() => handleNavigate(item.id)}
-                  className={`w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`w-full min-h-[44px] flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors whitespace-nowrap ${
                     isActive
                       ? 'bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100'
@@ -541,7 +541,7 @@ export default function App() {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3 shrink-0">
           <div className="px-2">
             <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
               {profile?.displayName ?? user.displayName ?? 'Mon compte'}
@@ -559,13 +559,13 @@ export default function App() {
             <button
               type="button"
               onClick={handleToggleTheme}
-              className="flex-1 flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="flex-1 min-h-[44px] lg:min-h-[36px] flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <span>{theme === 'dark' ? 'Clair' : 'Sombre'}</span>
               {theme === 'dark' ? (
-                <Sun className="h-3.5 w-3.5 text-amber-400" />
+                <Sun className="h-4 w-4 text-amber-400" />
               ) : (
-                <Moon className="h-3.5 w-3.5 text-slate-500" />
+                <Moon className="h-4 w-4 text-slate-500" />
               )}
             </button>
 
@@ -574,9 +574,9 @@ export default function App() {
               onClick={() => signOut(auth)}
               aria-label="Se déconnecter"
               title="Se déconnecter"
-              className="rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+              className="min-h-[44px] min-w-[44px] lg:min-h-[36px] lg:min-w-[36px] flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <LogOut className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -584,17 +584,8 @@ export default function App() {
 
       {/* Main Content Area */}
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-30 h-16 border-b border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95 px-4 sm:px-8 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(true)}
-              aria-label="Ouvrir le menu"
-              className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-
+        <header className="lg:sticky lg:top-0 z-30 h-14 lg:h-16 border-b border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <span className="hidden sm:inline text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
               {currentNavLabel}
             </span>
@@ -605,92 +596,100 @@ export default function App() {
               /
             </span>
 
-            <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-800 dark:bg-slate-950">
+            <div className="flex items-center gap-0.5 sm:gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-800 dark:bg-slate-950">
               <button
                 type="button"
                 onClick={() => setMonthKey((m) => shiftMonthKey(m, -1))}
                 aria-label="Mois précédent"
-                className="rounded-md p-1.5 text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                className="h-10 w-9 sm:h-8 sm:w-8 flex items-center justify-center rounded-md text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="px-2.5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[118px] text-center">
+              <span className="px-1.5 sm:px-2.5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap min-w-[94px] sm:min-w-[118px] text-center">
                 {formatMonthLabel(monthKey)}
               </span>
               <button
                 type="button"
                 onClick={() => setMonthKey((m) => shiftMonthKey(m, 1))}
                 aria-label="Mois suivant"
-                className="rounded-md p-1.5 text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                className="h-10 w-9 sm:h-8 sm:w-8 flex items-center justify-center rounded-md text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0 relative">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 relative">
             <button
               type="button"
               onClick={() => setNotifPopoverOpen((v) => !v)}
               aria-label="Notifications de rappels de paiement"
-              className="relative rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
+              aria-expanded={notifPopoverOpen}
+              className="relative h-11 w-11 sm:h-9 sm:w-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <Bell className="h-4 w-4" />
               {evaluatedAlerts.length > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 font-mono text-[10px] font-bold text-white">
+                <span className="absolute top-1 right-1 sm:-top-1 sm:-right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-600 px-1 font-mono text-[10px] font-bold text-white">
                   {evaluatedAlerts.length}
                 </span>
               )}
             </button>
 
             {notifPopoverOpen && (
-              <div className="absolute right-0 top-12 w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900 z-50">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                  <span className="font-display text-xs font-semibold text-slate-900 dark:text-slate-100">
-                    Alertes d’échéances
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleNavigate('reminders')}
-                    className="text-xs font-medium text-teal-700 hover:underline dark:text-teal-400"
-                  >
-                    Tout voir
-                  </button>
-                </div>
-
-                {evaluatedAlerts.length === 0 ? (
-                  <p className="py-4 text-xs text-slate-500 dark:text-slate-400 text-center">
-                    Aucune facture imminente selon vos seuils de rappel.
-                  </p>
-                ) : (
-                  <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-64 overflow-y-auto">
-                    {evaluatedAlerts.map((item) => (
-                      <div key={item.reminder.id} className="py-2.5 text-xs space-y-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                            {item.reminder.title}
-                          </span>
-                          <span className="font-mono font-semibold text-slate-900 dark:text-slate-100 shrink-0 tabular-nums">
-                            {formatAriary(item.reminder.amount)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                          <span>
-                            {item.statusLabel} · {formatDateFr(item.reminder.dueDate)}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleMarkReminderPaid(item.reminder)}
-                            className="font-medium text-emerald-700 hover:underline dark:text-emerald-400"
-                          >
-                            Payer
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setNotifPopoverOpen(false)}
+                  aria-hidden="true"
+                />
+                <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900 z-50">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                    <span className="font-display text-xs font-semibold text-slate-900 dark:text-slate-100">
+                      Alertes d’échéances
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate('reminders')}
+                      className="min-h-[36px] px-1 inline-flex items-center text-xs font-medium text-teal-700 hover:underline dark:text-teal-400"
+                    >
+                      Tout voir
+                    </button>
                   </div>
-                )}
-              </div>
+
+                  {evaluatedAlerts.length === 0 ? (
+                    <p className="py-4 text-xs text-slate-500 dark:text-slate-400 text-center">
+                      Aucune facture imminente selon vos seuils de rappel.
+                    </p>
+                  ) : (
+                    <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-64 overflow-y-auto">
+                      {evaluatedAlerts.map((item) => (
+                        <div key={item.reminder.id} className="py-2.5 text-xs space-y-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                              {item.reminder.title}
+                            </span>
+                            <span className="font-mono font-semibold text-slate-900 dark:text-slate-100 shrink-0 tabular-nums">
+                              {formatAriary(item.reminder.amount)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                            <span>
+                              {item.statusLabel} · {formatDateFr(item.reminder.dueDate)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleMarkReminderPaid(item.reminder)}
+                              className="min-h-[32px] px-2 font-medium text-emerald-700 hover:underline dark:text-emerald-400"
+                            >
+                              Payer
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
 
             <button
@@ -699,22 +698,23 @@ export default function App() {
                 setEditingTx(null);
                 setTxModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3.5 py-2 text-xs sm:text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 whitespace-nowrap shrink-0"
+              aria-label="Nouvelle opération"
+              className="h-11 sm:h-9 inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-3 sm:px-3.5 text-xs sm:text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 whitespace-nowrap shrink-0"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">Nouvelle opération</span>
-              <span className="sm:hidden">Ajouter</span>
+              <span className="hidden min-[375px]:inline sm:hidden">Ajouter</span>
             </button>
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
+        <main className="flex-1 w-full max-w-[1280px] mx-auto px-3.5 py-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 space-y-4 sm:space-y-6">
           {actionError && (
             <div
               role="alert"
               className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
                 <span>{actionError}</span>
               </div>
@@ -722,7 +722,7 @@ export default function App() {
                 type="button"
                 onClick={() => setActionError('')}
                 aria-label="Fermer l’alerte"
-                className="rounded p-1 hover:bg-red-100 dark:hover:bg-red-900/40"
+                className="h-9 w-9 shrink-0 flex items-center justify-center rounded hover:bg-red-100 dark:hover:bg-red-900/40"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -888,6 +888,79 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Mobile Bottom Tab Bar */}
+      <nav
+        aria-label="Navigation mobile"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95 pb-[env(safe-area-inset-bottom)]"
+      >
+        <div className="grid grid-cols-5 h-14 max-w-lg mx-auto">
+          {(
+            [
+              { id: 'dashboard', label: 'Accueil', icon: LayoutDashboard },
+              { id: 'transactions', label: 'Opérations', icon: ArrowLeftRight },
+              { id: 'reminders', label: 'Rappels', icon: Bell },
+              { id: 'goals', label: 'Objectifs', icon: Target },
+            ] as const
+          ).map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeView === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleNavigate(tab.id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`relative flex flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
+                  isActive
+                    ? 'text-teal-700 dark:text-teal-400 font-semibold'
+                    : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+                }`}
+              >
+                {isActive && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0 h-0.5 w-6 rounded-full bg-teal-700 dark:bg-teal-400"
+                  />
+                )}
+                <span className="relative">
+                  <Icon className="h-5 w-5" />
+                  {tab.id === 'reminders' && evaluatedAlerts.length > 0 && (
+                    <span className="absolute -top-1 -right-2 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-amber-600 px-1 font-mono text-[9px] font-bold text-white">
+                      {evaluatedAlerts.length}
+                    </span>
+                  )}
+                </span>
+                <span className="truncate max-w-full">{tab.label}</span>
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Ouvrir le menu complet"
+            className={`relative flex flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
+              activeView === 'categories' ||
+              activeView === 'budget' ||
+              activeView === 'storage'
+                ? 'text-teal-700 dark:text-teal-400 font-semibold'
+                : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
+            }`}
+          >
+            {(activeView === 'categories' ||
+              activeView === 'budget' ||
+              activeView === 'storage') && (
+              <span
+                aria-hidden="true"
+                className="absolute top-0 h-0.5 w-6 rounded-full bg-teal-700 dark:bg-teal-400"
+              />
+            )}
+            <Menu className="h-5 w-5" />
+            <span>Menu</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Modals */}
       <TransactionModal

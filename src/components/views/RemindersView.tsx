@@ -95,11 +95,11 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
             Rappels de paiement et factures
           </h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
@@ -110,7 +110,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
         <button
           type="button"
           onClick={onAddReminder}
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 whitespace-nowrap shrink-0"
+          className="w-full sm:w-auto min-h-[44px] sm:min-h-[38px] inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500 whitespace-nowrap shrink-0"
         >
           <Plus className="h-4 w-4" />
           Nouveau rappel
@@ -118,14 +118,14 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
       </div>
 
       {/* Summary Strip */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <span className="text-xs text-slate-500 dark:text-slate-400">
               Échéances à traiter bientôt
             </span>
             <p
-              className={`mt-1 font-mono text-2xl font-semibold tabular-nums ${
+              className={`mt-1 font-mono text-xl sm:text-2xl font-semibold tabular-nums ${
                 activeAlerts.length > 0
                   ? 'text-amber-700 dark:text-amber-400'
                   : 'text-slate-900 dark:text-slate-100'
@@ -138,7 +138,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
             <span className="text-xs text-slate-500 dark:text-slate-400">
               Charge récurrente mensuelle estimée
             </span>
-            <p className="mt-1 font-mono text-2xl font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+            <p className="mt-1 font-mono text-xl sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
               {formatAriary(monthlyCommitment)}
             </p>
           </div>
@@ -146,11 +146,11 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
             <span className="text-xs text-slate-500 dark:text-slate-400">
               Notifications navigateur
             </span>
-            <div className="mt-1">
+            <div className="mt-1.5">
               <button
                 type="button"
                 onClick={handleEnableBrowserNotifs}
-                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`w-full sm:w-auto min-h-[44px] sm:min-h-[34px] inline-flex items-center justify-center gap-2 rounded-lg border px-3 py-2 sm:py-1.5 text-xs font-medium transition-colors ${
                   browserNotificationsEnabled
                     ? 'border-teal-700 bg-teal-50 text-teal-800 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-300'
                     : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800'
@@ -181,7 +181,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
 
       {/* Reminders List */}
       {evaluated.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-xl border border-slate-200 bg-white p-8 sm:p-12 text-center dark:border-slate-800 dark:bg-slate-900">
           <CalendarClock className="h-8 w-8 mx-auto text-slate-400" />
           <p className="mt-3 text-sm font-medium text-slate-900 dark:text-slate-100">
             Aucun rappel de paiement programmé.
@@ -192,7 +192,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
           <button
             type="button"
             onClick={onAddReminder}
-            className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+            className="mt-5 min-h-[44px] inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
             <Plus className="h-3.5 w-3.5" />
             Créer un premier rappel
@@ -208,12 +208,12 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
             return (
               <div
                 key={r.id}
-                className={`p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
+                className={`p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4 ${
                   !r.enabled ? 'opacity-60' : ''
                 }`}
               >
                 <div className="min-w-0 space-y-1">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
                     <span
                       className={`inline-flex items-center gap-1 font-semibold ${
                         status === 'overdue'
@@ -252,11 +252,16 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                     </span>
                   </div>
 
-                  <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
-                    {r.title}
-                  </h2>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100 break-words">
+                      {r.title}
+                    </h2>
+                    <span className="lg:hidden font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums shrink-0">
+                      {formatAriary(r.amount)}
+                    </span>
+                  </div>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 break-words">
                     <span className={meta.textClass}>{meta.shortLabel}</span>
                     <span aria-hidden="true"> · </span>
                     <span>{r.category}</span>
@@ -275,29 +280,29 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 shrink-0">
-                  <span className="font-mono text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums mr-2">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0">
+                  <span className="hidden lg:inline font-mono text-base font-semibold text-slate-900 dark:text-slate-100 tabular-nums mr-2">
                     {formatAriary(r.amount)}
                   </span>
 
                   {isConfirming ? (
-                    <div className="flex items-center gap-2 text-xs">
+                    <div className="flex items-center gap-2 text-xs ml-auto lg:ml-0">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="min-h-[44px] sm:min-h-[32px] rounded-lg sm:rounded-md border border-slate-300 px-3.5 py-2 sm:px-3 sm:py-1.5 font-medium text-slate-700 dark:border-slate-700 dark:text-slate-300"
+                      >
+                        Annuler
+                      </button>
                       <button
                         type="button"
                         onClick={() => {
                           onDeleteReminder(r.id);
                           setConfirmDeleteId(null);
                         }}
-                        className="rounded-md bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700"
+                        className="min-h-[44px] sm:min-h-[32px] rounded-lg sm:rounded-md bg-red-600 px-3.5 py-2 sm:px-3 sm:py-1.5 font-medium text-white hover:bg-red-700"
                       >
                         Supprimer
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDeleteId(null)}
-                        className="rounded-md border border-slate-300 px-3 py-1.5 font-medium text-slate-700 dark:border-slate-700 dark:text-slate-300"
-                      >
-                        Annuler
                       </button>
                     </div>
                   ) : (
@@ -305,7 +310,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onMarkPaid(r)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 whitespace-nowrap"
+                        className="flex-1 sm:flex-none min-h-[44px] sm:min-h-[34px] inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-2 sm:py-1.5 text-xs font-medium text-white hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 whitespace-nowrap"
                       >
                         <Check className="h-3.5 w-3.5" />
                         Marquer comme payé
@@ -314,27 +319,27 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                       <button
                         type="button"
                         onClick={() => onToggleEnabled(r.id, !r.enabled)}
-                        className="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 whitespace-nowrap"
+                        className="min-h-[44px] sm:min-h-[34px] rounded-lg border border-slate-300 px-3 py-2 sm:px-2.5 sm:py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 whitespace-nowrap"
                       >
-                        {r.enabled ? 'Mettre en pause' : 'Réactiver'}
+                        {r.enabled ? 'Pause' : 'Réactiver'}
                       </button>
 
                       <button
                         type="button"
                         onClick={() => onEditReminder(r)}
                         aria-label={`Modifier ${r.title}`}
-                        className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                        className="h-11 w-11 sm:h-8 sm:w-8 flex items-center justify-center rounded-lg border border-slate-200 sm:border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 sm:dark:border-transparent dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                       >
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setConfirmDeleteId(r.id)}
                         aria-label={`Supprimer ${r.title}`}
-                        className="rounded-md p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-700 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                        className="h-11 w-11 sm:h-8 sm:w-8 flex items-center justify-center rounded-lg border border-slate-200 sm:border-transparent text-slate-500 hover:bg-red-50 hover:text-red-700 dark:border-slate-800 sm:dark:border-transparent dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                       </button>
                     </>
                   )}

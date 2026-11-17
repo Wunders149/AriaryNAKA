@@ -76,10 +76,10 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
             Catégories et répartition des dépenses
           </h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
@@ -87,11 +87,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800 shrink-0 self-start">
+        <div className="w-full sm:w-auto grid grid-cols-2 sm:flex items-center gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800 shrink-0">
           <button
             type="button"
             onClick={() => setIncludeSavings(true)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+            className={`min-h-[42px] sm:min-h-[32px] rounded-md px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-colors text-center ${
               includeSavings
                 ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -102,26 +102,26 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
           <button
             type="button"
             onClick={() => setIncludeSavings(false)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+            className={`min-h-[42px] sm:min-h-[32px] rounded-md px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-colors text-center ${
               !includeSavings
                 ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
             }`}
           >
-            Dépenses courantes (50/30)
+            Courantes (50/30)
           </button>
         </div>
       </div>
 
       {/* Category Spending Chart */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 pb-4 mb-6 border-b border-slate-200 dark:border-slate-800">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 pb-4 mb-5 sm:mb-6 border-b border-slate-200 dark:border-slate-800">
           <div>
             <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
               Dépenses par catégorie · {formatMonthLabel(monthKey)}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Cliquez sur une catégorie pour afficher les transactions correspondantes
+              Touchez une catégorie pour afficher les transactions correspondantes
             </p>
           </div>
           <span className="font-mono text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
@@ -136,11 +136,11 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
       </section>
 
       {/* Custom Category Creator + Directory */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
         {/* Create Custom Category Form */}
         <form
           onSubmit={handleSubmit}
-          className="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 space-y-4"
+          className="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900 space-y-4"
         >
           <div className="flex items-center gap-2 pb-3 border-b border-slate-200 dark:border-slate-800">
             <Tag className="h-4 w-4 text-teal-700 dark:text-teal-400" />
@@ -163,7 +163,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex. Énergie solaire, Cotisation..."
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className="w-full min-h-[44px] sm:min-h-[38px] rounded-lg border border-slate-300 bg-white px-3 py-2 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-700 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
             />
           </div>
 
@@ -175,7 +175,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <button
                 type="button"
                 onClick={() => setKind('expense')}
-                className={`rounded-md py-1.5 text-xs font-medium transition-colors ${
+                className={`min-h-[40px] sm:min-h-[34px] rounded-md py-1.5 text-xs font-medium transition-colors ${
                   kind === 'expense'
                     ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100'
                     : 'text-slate-600 dark:text-slate-400'
@@ -186,7 +186,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
               <button
                 type="button"
                 onClick={() => setKind('income')}
-                className={`rounded-md py-1.5 text-xs font-medium transition-colors ${
+                className={`min-h-[40px] sm:min-h-[34px] rounded-md py-1.5 text-xs font-medium transition-colors ${
                   kind === 'income'
                     ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-slate-100'
                     : 'text-slate-600 dark:text-slate-400'
@@ -208,7 +208,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                     key={b}
                     type="button"
                     onClick={() => setBucket(b)}
-                    className={`rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors ${
+                    className={`min-h-[44px] sm:min-h-[38px] rounded-lg border px-2 py-2 text-xs font-medium transition-colors ${
                       bucket === b
                         ? 'border-teal-700 bg-teal-50 text-slate-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-slate-100'
                         : 'border-slate-200 text-slate-600 dark:border-slate-800 dark:text-slate-400'
@@ -225,14 +225,14 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
             <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
               Couleur sur les graphiques
             </label>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
               {CATEGORY_COLOR_SWATCHES.map((hex) => (
                 <button
                   key={hex}
                   type="button"
                   onClick={() => setColor(hex)}
                   aria-label={`Choisir la couleur ${hex}`}
-                  className={`h-7 w-7 rounded-md transition-transform ${
+                  className={`h-10 w-10 sm:h-8 sm:w-8 rounded-lg sm:rounded-md transition-transform ${
                     color === hex
                       ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-slate-100 dark:ring-offset-slate-900 scale-105'
                       : 'hover:scale-105'
@@ -251,7 +251,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
 
           <button
             type="submit"
-            className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+            className="w-full min-h-[44px] sm:min-h-[38px] inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
             <Plus className="h-4 w-4" />
             Ajouter la catégorie
@@ -259,7 +259,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
         </form>
 
         {/* Custom & Predefined Categories Directory */}
-        <section className="lg:col-span-7 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 space-y-6">
+        <section className="lg:col-span-7 rounded-xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-800 dark:bg-slate-900 space-y-6">
           <div>
             <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
               Vos catégories personnalisées ({customCategories.length})
@@ -273,7 +273,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                 {customCategories.map((cat) => (
                   <div
                     key={cat.id}
-                    className="flex items-center justify-between gap-3 py-2.5 text-sm"
+                    className="flex items-center justify-between gap-3 py-2 text-sm"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
@@ -292,9 +292,9 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({
                       type="button"
                       onClick={() => onDeleteCategory(cat.id)}
                       aria-label={`Supprimer ${cat.name}`}
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                      className="h-11 w-11 sm:h-8 sm:w-8 shrink-0 flex items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                     </button>
                   </div>
                 ))}

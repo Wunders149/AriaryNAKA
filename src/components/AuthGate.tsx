@@ -13,11 +13,24 @@ export const AuthGate: React.FC = () => {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err) {
+      const code =
+        typeof err === 'object' && err !== null && 'code' in err
+          ? String((err as { code?: unknown }).code)
+          : '';
       const msg =
         err instanceof Error
           ? err.message
           : 'Impossible d’ouvrir la fenêtre de connexion Google.';
-      if (!msg.includes('popup-closed-by-user')) {
+
+      if (code === 'auth/unauthorized-domain' || msg.includes('unauthorized-domain')) {
+        setError(
+          `Domaine (${window.location.hostname}) non autorisé dans Firebase Authentication. Ajoutez-le dans Console Firebase > Authentication > Settings > Authorized domains.`
+        );
+      } else if (code === 'auth/popup-blocked' || msg.includes('popup-blocked')) {
+        setError(
+          'La fenêtre de connexion Google a été bloquée par le navigateur. Autorisez les pop-ups puis réessayez.'
+        );
+      } else if (!msg.includes('popup-closed-by-user')) {
         setError('Échec de la connexion Google. Veuillez réessayer.');
       }
       setLoading(false);
@@ -25,25 +38,25 @@ export const AuthGate: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col justify-between p-6 sm:p-10">
-      <header className="max-w-5xl w-full mx-auto flex items-center justify-between">
-        <span className="font-display text-xl font-bold tracking-tight">
+    <div className="min-h-dvh bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 flex flex-col justify-between px-4 py-5 sm:p-10 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+      <header className="max-w-5xl w-full mx-auto flex flex-wrap items-center justify-between gap-2">
+        <span className="font-display text-lg sm:text-xl font-bold tracking-tight">
           Ariary <span className="text-teal-700 dark:text-teal-400">50/30/20</span>
         </span>
         <span className="text-xs text-slate-500 dark:text-slate-400">
-          Gestion financière personnelle · Madagascar (Ar)
+          Gestion financière · Madagascar (Ar)
         </span>
       </header>
 
-      <main className="max-w-5xl w-full mx-auto my-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-        <div className="lg:col-span-7 space-y-5">
+      <main className="max-w-5xl w-full mx-auto my-8 sm:my-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+        <div className="lg:col-span-7 space-y-4 sm:space-y-5">
           <p className="text-xs font-semibold text-teal-700 dark:text-teal-400">
             Méthode budgétaire 50 / 30 / 20
           </p>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 text-balance">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 text-balance">
             Chaque ariary compte. Chaque objectif se construit.
           </h1>
-          <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
             Organisez vos revenus et vos dépenses en Ariary, catégorisez vos postes de sortie, planifiez vos rappels d’échéances et suivez vos objectifs d’épargne sur tous vos appareils grâce à la synchronisation sécurisée Google & Firestore.
           </p>
 
@@ -52,7 +65,7 @@ export const AuthGate: React.FC = () => {
               type="button"
               onClick={handleSignIn}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-3 rounded-lg bg-teal-700 px-6 py-3 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60 dark:bg-teal-600 dark:hover:bg-teal-500 transition-colors"
+              className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-3 rounded-lg bg-teal-700 px-6 py-3 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60 dark:bg-teal-600 dark:hover:bg-teal-500 transition-colors"
             >
               <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -71,7 +84,7 @@ export const AuthGate: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800">
+        <div className="lg:col-span-5 rounded-xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800">
           <div className="pb-4 flex items-start gap-3">
             <PieChart className="h-5 w-5 text-teal-700 dark:text-teal-400 shrink-0 mt-0.5" />
             <div>
