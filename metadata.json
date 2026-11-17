@@ -1,0 +1,6 @@
+{
+  "name": "Ariary 50/30/20",
+  "description": "Gestion financière personnelle selon la règle 50/30/20 en Ariary (Ar). Suivez revenus, dépenses et objectifs d'épargne localement sur votre appareil.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

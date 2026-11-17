@@ -1,0 +1,354 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil utilisateur et préférences budgétaires 50/30/20 privées.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Identifiant Firebase Auth de l'utilisateur."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Nom complet affiché."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160,
+          "description": "Adresse email vérifiée."
+        },
+        "splitNeeds": {
+          "type": "integer",
+          "description": "Pourcentage cible pour les besoins essentiels."
+        },
+        "splitWants": {
+          "type": "integer",
+          "description": "Pourcentage cible pour les envies et loisirs."
+        },
+        "splitSavings": {
+          "type": "integer",
+          "description": "Pourcentage cible pour l'épargne et les objectifs."
+        },
+        "theme": {
+          "type": "string",
+          "enum": ["light", "dark"],
+          "description": "Thème d'interface choisi."
+        },
+        "browserNotificationsEnabled": {
+          "type": "boolean",
+          "description": "Activation des notifications navigateur pour les rappels."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Horodatage serveur de création."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Horodatage serveur de dernière mise à jour."
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "email",
+        "splitNeeds",
+        "splitWants",
+        "splitSavings",
+        "theme",
+        "browserNotificationsEnabled",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Opération financière (revenu, dépense ou versement épargne) en Ariary.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "date": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "amount": {
+          "type": "number",
+          "description": "Montant positif en Ariary."
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["income", "expense"]
+        },
+        "bucket": {
+          "type": "string",
+          "enum": ["needs", "wants", "savings", "none"]
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "goalId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "date",
+        "label",
+        "amount",
+        "kind",
+        "bucket",
+        "category",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SavingsGoal": {
+      "title": "SavingsGoal",
+      "description": "Objectif d'épargne avec montant cible, échéance et versement régulier.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "targetAmount": {
+          "type": "number"
+        },
+        "currentAmount": {
+          "type": "number"
+        },
+        "regularAmount": {
+          "type": "number"
+        },
+        "regularFrequency": {
+          "type": "string",
+          "enum": ["weekly", "monthly"]
+        },
+        "deadline": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "title",
+        "targetAmount",
+        "currentAmount",
+        "regularAmount",
+        "regularFrequency",
+        "deadline",
+        "priority",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PaymentReminder": {
+      "title": "PaymentReminder",
+      "description": "Rappel de facture ou paiement récurrent avec préavis configurable.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "amount": {
+          "type": "number"
+        },
+        "dueDate": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "frequency": {
+          "type": "string",
+          "enum": ["once", "weekly", "monthly", "quarterly", "yearly"]
+        },
+        "bucket": {
+          "type": "string",
+          "enum": ["needs", "wants", "savings"]
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "notifyDaysBefore": {
+          "type": "integer"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "lastPaidDate": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "title",
+        "amount",
+        "dueDate",
+        "frequency",
+        "bucket",
+        "category",
+        "notifyDaysBefore",
+        "enabled",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CustomCategory": {
+      "title": "CustomCategory",
+      "description": "Catégorie personnalisée créée par l'utilisateur pour ses revenus ou dépenses.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["income", "expense"]
+        },
+        "bucket": {
+          "type": "string",
+          "enum": ["needs", "wants", "savings", "none"]
+        },
+        "color": {
+          "type": "string",
+          "minLength": 7,
+          "maxLength": 7,
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "uid",
+        "name",
+        "kind",
+        "bucket",
+        "color",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Document racine du profil et des paramètres 50/30/20 de l'utilisateur."
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Sous-collection des opérations financières privées de l'utilisateur."
+    },
+    "/users/{userId}/goals/{goalId}": {
+      "schema": { "$ref": "#/entities/SavingsGoal" },
+      "description": "Sous-collection des objectifs d'épargne privés de l'utilisateur."
+    },
+    "/users/{userId}/reminders/{reminderId}": {
+      "schema": { "$ref": "#/entities/PaymentReminder" },
+      "description": "Sous-collection des rappels de paiement et factures récurrentes."
+    },
+    "/users/{userId}/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/CustomCategory" },
+      "description": "Sous-collection des catégories personnalisées de l'utilisateur."
+    }
+  }
+}
