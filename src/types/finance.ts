@@ -16,6 +16,7 @@ export type AppView =
   | 'reminders'
   | 'budget'
   | 'goals'
+  | 'gmail'
   | 'storage';
 
 export interface BudgetSplit {

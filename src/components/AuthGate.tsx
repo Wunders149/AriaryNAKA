@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
 import { Bell, PieChart, ShieldCheck, Target } from 'lucide-react';
-import { auth, googleProvider } from '../firebase/client';
+import { signInWithGoogle } from '../firebase/client';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 export const AuthGate: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -11,7 +11,7 @@ export const AuthGate: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
+      await signInWithGoogle();
     } catch (err) {
       const code =
         typeof err === 'object' && err !== null && 'code' in err
@@ -61,20 +61,12 @@ export const AuthGate: React.FC = () => {
           </p>
 
           <div className="pt-2 space-y-3">
-            <button
-              type="button"
+            <GoogleSignInButton
               onClick={handleSignIn}
-              disabled={loading}
-              className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-3 rounded-lg bg-teal-700 px-6 py-3 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-60 dark:bg-teal-600 dark:hover:bg-teal-500 transition-colors"
-            >
-              <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27c3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10c5.35 0 9.25-3.67 9.25-9.09c0-1.15-.15-1.81-.15-1.81"
-                />
-              </svg>
-              {loading ? 'Connexion en cours...' : 'Se connecter avec Google'}
-            </button>
+              loading={loading}
+              label="Se connecter avec Google"
+              loadingLabel="Connexion en cours..."
+            />
 
             {error && (
               <p className="text-xs font-medium text-red-700 dark:text-red-400">

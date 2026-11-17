@@ -19,6 +19,7 @@ interface ReminderModalProps {
     existingId?: string
   ) => void;
   editingReminder?: PaymentReminder | null;
+  initialDraft?: Partial<Omit<PaymentReminder, 'id' | 'createdAt'>> | null;
   customCategories: CustomCategory[];
 }
 
@@ -37,6 +38,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
   onClose,
   onSave,
   editingReminder,
+  initialDraft,
   customCategories,
 }) => {
   const [title, setTitle] = useState('');
@@ -71,6 +73,19 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
       setNotifyDaysBefore(editingReminder.notifyDaysBefore);
       setEnabled(editingReminder.enabled);
       setNote(editingReminder.note ?? '');
+    } else if (initialDraft) {
+      const draftBucket = initialDraft.bucket ?? 'needs';
+      setTitle(initialDraft.title ?? '');
+      setAmountStr(initialDraft.amount ? String(initialDraft.amount) : '');
+      const d = new Date();
+      d.setDate(d.getDate() + 5);
+      setDueDate(initialDraft.dueDate ?? d.toISOString().slice(0, 10));
+      setFrequency(initialDraft.frequency ?? 'monthly');
+      setBucket(draftBucket);
+      setCategory(initialDraft.category ?? BUCKET_CATEGORIES[draftBucket][0]);
+      setNotifyDaysBefore(initialDraft.notifyDaysBefore ?? 3);
+      setEnabled(initialDraft.enabled ?? true);
+      setNote(initialDraft.note ?? '');
     } else {
       setTitle('');
       setAmountStr('');
@@ -84,7 +99,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
       setEnabled(true);
       setNote('');
     }
-  }, [isOpen, editingReminder]);
+  }, [isOpen, editingReminder, initialDraft]);
 
   if (!isOpen) return null;
 

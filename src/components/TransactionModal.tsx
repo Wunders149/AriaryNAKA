@@ -19,6 +19,7 @@ interface TransactionModalProps {
   onSave: (data: Omit<Transaction, 'id' | 'createdAt'>, existingId?: string) => void;
   onCreateCategory?: (data: Omit<CustomCategory, 'id' | 'createdAt'>) => void;
   editingTransaction?: Transaction | null;
+  initialDraft?: Partial<Omit<Transaction, 'id' | 'createdAt'>> | null;
   goals: SavingsGoal[];
   customCategories: CustomCategory[];
   defaultMonthKey: string;
@@ -32,6 +33,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   onSave,
   onCreateCategory,
   editingTransaction,
+  initialDraft,
   goals,
   customCategories,
   defaultMonthKey,
@@ -78,6 +80,26 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setDate(editingTransaction.date);
       setNote(editingTransaction.note ?? '');
       setGoalId(editingTransaction.goalId ?? '');
+    } else if (initialDraft) {
+      const draftKind = initialDraft.kind ?? 'expense';
+      const draftBucket = initialDraft.bucket ?? 'needs';
+      setKind(draftKind);
+      setBucket(draftBucket);
+      setCategory(
+        initialDraft.category ??
+          (draftKind === 'income'
+            ? INCOME_CATEGORIES[0]
+            : BUCKET_CATEGORIES[draftBucket][0])
+      );
+      setLabel(initialDraft.label ?? '');
+      setAmountStr(initialDraft.amount ? String(initialDraft.amount) : '');
+      const today = getTodayISO();
+      setDate(
+        initialDraft.date ??
+          (today.startsWith(defaultMonthKey) ? today : `${defaultMonthKey}-05`)
+      );
+      setNote(initialDraft.note ?? '');
+      setGoalId(initialDraft.goalId ?? '');
     } else {
       setKind('expense');
       setBucket('needs');
@@ -89,7 +111,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setNote('');
       setGoalId('');
     }
-  }, [isOpen, editingTransaction, defaultMonthKey]);
+  }, [isOpen, editingTransaction, initialDraft, defaultMonthKey]);
 
   if (!isOpen) return null;
 

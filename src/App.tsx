@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
-import { User, onAuthStateChanged, signOut } from 'firebase/auth';
+import { User, onAuthStateChanged } from 'firebase/auth';
 import {
   AlertTriangle,
   ArrowLeftRight,
@@ -9,6 +9,7 @@ import {
   Cloud,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   Moon,
   PieChart,
@@ -24,7 +25,7 @@ import { ReminderModal } from './components/ReminderModal';
 import { TransactionModal } from './components/TransactionModal';
 import { DashboardView } from './components/views/DashboardView';
 import { TransactionFilter } from './components/views/TransactionsView';
-import { auth } from './firebase/client';
+import { auth, signOutGoogle } from './firebase/client';
 import {
   clearUserSubcollections,
   createCustomCategory,
@@ -104,6 +105,11 @@ const LocalDataView = lazy(() =>
     default: m.LocalDataView,
   }))
 );
+const GmailView = lazy(() =>
+  import('./components/views/GmailView').then((m) => ({
+    default: m.GmailView,
+  }))
+);
 
 const NAV_ITEMS: {
   id: AppView;
@@ -116,6 +122,7 @@ const NAV_ITEMS: {
   { id: 'reminders', label: 'Rappels', icon: Bell },
   { id: 'budget', label: 'Règle 50/30/20', icon: PieChart },
   { id: 'goals', label: 'Objectifs', icon: Target },
+  { id: 'gmail', label: 'Gmail', icon: Mail },
   { id: 'storage', label: 'Sauvegarde', icon: Cloud },
 ];
 
@@ -140,10 +147,12 @@ export default function App() {
 
   const [txModalOpen, setTxModalOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+  const [txDraft, setTxDraft] = useState<Partial<Omit<Transaction, 'id' | 'createdAt'>> | null>(null);
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [remModalOpen, setRemModalOpen] = useState(false);
   const [editingRem, setEditingRem] = useState<PaymentReminder | null>(null);
+  const [remDraft, setRemDraft] = useState<Partial<Omit<PaymentReminder, 'id' | 'createdAt'>> | null>(null);
 
   const runSafeAsync = async (fn: () => Promise<unknown>, fallbackMessage: string) => {
     setActionError('');
@@ -571,7 +580,7 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => signOut(auth)}
+              onClick={() => void signOutGoogle()}
               aria-label="Se déconnecter"
               title="Se déconnecter"
               className="min-h-[44px] min-w-[44px] lg:min-h-[36px] lg:min-w-[36px] flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
@@ -871,6 +880,25 @@ export default function App() {
                 />
               )}
 
+              {activeView === 'gmail' && (
+                <GmailView
+                  userEmail={user.email ?? ''}
+                  monthKey={monthKey}
+                  summary={summary}
+                  evaluatedAlerts={evaluatedAlerts}
+                  onImportTransaction={(draft) => {
+                    setEditingTx(null);
+                    setTxDraft(draft);
+                    setTxModalOpen(true);
+                  }}
+                  onCreateReminder={(draft) => {
+                    setEditingRem(null);
+                    setRemDraft(draft);
+                    setRemModalOpen(true);
+                  }}
+                />
+              )}
+
               {activeView === 'storage' && profile && (
                 <LocalDataView
                   profile={profile}
@@ -943,6 +971,7 @@ export default function App() {
             className={`relative flex flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium transition-colors ${
               activeView === 'categories' ||
               activeView === 'budget' ||
+              activeView === 'gmail' ||
               activeView === 'storage'
                 ? 'text-teal-700 dark:text-teal-400 font-semibold'
                 : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100'
@@ -950,6 +979,7 @@ export default function App() {
           >
             {(activeView === 'categories' ||
               activeView === 'budget' ||
+              activeView === 'gmail' ||
               activeView === 'storage') && (
               <span
                 aria-hidden="true"
@@ -968,6 +998,7 @@ export default function App() {
         onClose={() => {
           setTxModalOpen(false);
           setEditingTx(null);
+          setTxDraft(null);
         }}
         onSave={handleSaveTransaction}
         onCreateCategory={(data) => {
@@ -977,6 +1008,7 @@ export default function App() {
           );
         }}
         editingTransaction={editingTx}
+        initialDraft={txDraft}
         goals={goals}
         customCategories={customCategories}
         defaultMonthKey={monthKey}
@@ -997,9 +1029,11 @@ export default function App() {
         onClose={() => {
           setRemModalOpen(false);
           setEditingRem(null);
+          setRemDraft(null);
         }}
         onSave={handleSaveReminder}
         editingReminder={editingRem}
+        initialDraft={remDraft}
         customCategories={customCategories}
       />
     </div>
