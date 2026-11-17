@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { User, onAuthStateChanged, signOut } from 'firebase/auth';
 import {
+  AlertTriangle,
   ArrowLeftRight,
   Bell,
   ChevronLeft,
@@ -21,16 +22,8 @@ import { AuthGate } from './components/AuthGate';
 import { GoalModal } from './components/GoalModal';
 import { ReminderModal } from './components/ReminderModal';
 import { TransactionModal } from './components/TransactionModal';
-import { BudgetRuleView } from './components/views/BudgetRuleView';
-import { CategoriesView } from './components/views/CategoriesView';
 import { DashboardView } from './components/views/DashboardView';
-import { GoalsView } from './components/views/GoalsView';
-import { LocalDataView } from './components/views/LocalDataView';
-import { RemindersView } from './components/views/RemindersView';
-import {
-  TransactionFilter,
-  TransactionsView,
-} from './components/views/TransactionsView';
+import { TransactionFilter } from './components/views/TransactionsView';
 import { auth } from './firebase/client';
 import {
   clearUserSubcollections,
@@ -59,7 +52,6 @@ import {
 import {
   AppView,
   BudgetBucket,
-  BudgetSplit,
   CustomCategory,
   FinanceStore,
   PaymentReminder,
@@ -81,7 +73,37 @@ import {
   evaluateReminder,
   triggerBrowserReminderNotifications,
 } from './utils/reminders';
-import { createSeedData } from './utils/storage';
+
+const TransactionsView = lazy(() =>
+  import('./components/views/TransactionsView').then((m) => ({
+    default: m.TransactionsView,
+  }))
+);
+const CategoriesView = lazy(() =>
+  import('./components/views/CategoriesView').then((m) => ({
+    default: m.CategoriesView,
+  }))
+);
+const RemindersView = lazy(() =>
+  import('./components/views/RemindersView').then((m) => ({
+    default: m.RemindersView,
+  }))
+);
+const BudgetRuleView = lazy(() =>
+  import('./components/views/BudgetRuleView').then((m) => ({
+    default: m.BudgetRuleView,
+  }))
+);
+const GoalsView = lazy(() =>
+  import('./components/views/GoalsView').then((m) => ({
+    default: m.GoalsView,
+  }))
+);
+const LocalDataView = lazy(() =>
+  import('./components/views/LocalDataView').then((m) => ({
+    default: m.LocalDataView,
+  }))
+);
 
 const NAV_ITEMS: {
   id: AppView;
@@ -102,6 +124,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [dataLoading, setDataLoading] = useState(false);
+  const [actionError, setActionError] = useState<string>('');
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
@@ -115,7 +138,6 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifPopoverOpen, setNotifPopoverOpen] = useState(false);
 
-  // Modals state
   const [txModalOpen, setTxModalOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [goalModalOpen, setGoalModalOpen] = useState(false);
@@ -123,7 +145,30 @@ export default function App() {
   const [remModalOpen, setRemModalOpen] = useState(false);
   const [editingRem, setEditingRem] = useState<PaymentReminder | null>(null);
 
-  // Listen to Firebase Auth state
+  const runSafeAsync = async (fn: () => Promise<unknown>, fallbackMessage: string) => {
+    setActionError('');
+    try {
+      await fn();
+    } catch (err) {
+      let detail = fallbackMessage;
+      if (err instanceof Error) {
+        try {
+          const parsed = JSON.parse(err.message) as { error?: string };
+          if (parsed?.error?.includes('Quota exceeded')) {
+            detail =
+              'Quota journalier Firestore dépassé. Veuillez réessayer demain ou mettre à niveau votre forfait.';
+          } else if (parsed?.error?.includes('permission')) {
+            detail =
+              'Accès refusé par les règles de sécurité. Vérifiez votre connexion Google.';
+          }
+        } catch {
+          // Keep default French message
+        }
+      }
+      setActionError(detail);
+    }
+  };
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -134,34 +179,50 @@ export default function App() {
         setGoals([]);
         setReminders([]);
         setCustomCategories([]);
+        setActionError('');
       }
     });
     return () => unsub();
   }, []);
 
-  // Initialize user document and Firestore listeners when authenticated
   useEffect(() => {
     if (!user) return;
     let active = true;
     let unsubs: (() => void)[] = [];
+
+    const onSubError = () => {
+      if (active) {
+        setActionError(
+          'Connexion Firestore interrompue ou permissions insuffisantes. Rechargez la page si le problème persiste.'
+        );
+        setDataLoading(false);
+      }
+    };
 
     setDataLoading(true);
     ensureUserProfile(user)
       .then(() => {
         if (!active) return;
         unsubs = [
-          subscribeToUserProfile(user.uid, (p) => {
-            setProfile(p);
-            setDataLoading(false);
-          }),
-          subscribeToTransactions(user.uid, setTransactions),
-          subscribeToGoals(user.uid, setGoals),
-          subscribeToReminders(user.uid, setReminders),
-          subscribeToCategories(user.uid, setCustomCategories),
+          subscribeToUserProfile(
+            user.uid,
+            (p) => {
+              setProfile(p);
+              setDataLoading(false);
+            },
+            onSubError
+          ),
+          subscribeToTransactions(user.uid, setTransactions, onSubError),
+          subscribeToGoals(user.uid, setGoals, onSubError),
+          subscribeToReminders(user.uid, setReminders, onSubError),
+          subscribeToCategories(user.uid, setCustomCategories, onSubError),
         ];
       })
       .catch(() => {
-        if (active) setDataLoading(false);
+        if (active) {
+          setActionError('Impossible d’initialiser votre profil utilisateur sur Firestore.');
+          setDataLoading(false);
+        }
       });
 
     return () => {
@@ -171,7 +232,7 @@ export default function App() {
   }, [user]);
 
   const theme: 'light' | 'dark' = profile?.theme ?? 'light';
-  const split: BudgetSplit = useMemo(
+  const split = useMemo(
     () => ({
       needs: profile?.splitNeeds ?? 50,
       wants: profile?.splitWants ?? 30,
@@ -180,7 +241,6 @@ export default function App() {
     [profile]
   );
 
-  // Sync Tailwind dark class on <html>
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -190,7 +250,6 @@ export default function App() {
     }
   }, [theme]);
 
-  // Evaluate reminders & trigger browser notifications if enabled
   const evaluatedAlerts = useMemo(
     () =>
       reminders
@@ -223,136 +282,155 @@ export default function App() {
     [transactions, monthKey, split]
   );
 
-  const handleToggleTheme = async () => {
+  const handleToggleTheme = () => {
     if (!user) return;
-    await updateUserTheme(user.uid, theme === 'dark' ? 'light' : 'dark');
+    void runSafeAsync(
+      () => updateUserTheme(user.uid, theme === 'dark' ? 'light' : 'dark'),
+      'Impossible de modifier le thème.'
+    );
   };
 
-  const handleSaveTransaction = async (
+  const handleSaveTransaction = (
     data: Omit<Transaction, 'id' | 'createdAt'>,
     existingId?: string
   ) => {
     if (!user) return;
+    void runSafeAsync(async () => {
+      if (existingId) {
+        const oldTx = transactions.find((t) => t.id === existingId);
+        if (oldTx?.goalId && oldTx.bucket === 'savings') {
+          const g = goals.find((item) => item.id === oldTx.goalId);
+          if (g) {
+            await updateGoalCurrentAmount(
+              user.uid,
+              g.id,
+              Math.max(0, g.currentAmount - oldTx.amount)
+            );
+          }
+        }
+        if (data.goalId && data.bucket === 'savings') {
+          const g = goals.find((item) => item.id === data.goalId);
+          if (g) {
+            const base =
+              oldTx?.goalId === data.goalId && oldTx.bucket === 'savings'
+                ? Math.max(0, g.currentAmount - oldTx.amount)
+                : g.currentAmount;
+            await updateGoalCurrentAmount(user.uid, g.id, base + data.amount);
+          }
+        }
+      } else if (data.goalId && data.bucket === 'savings') {
+        const g = goals.find((item) => item.id === data.goalId);
+        if (g) {
+          await updateGoalCurrentAmount(user.uid, g.id, g.currentAmount + data.amount);
+        }
+      }
 
-    if (existingId) {
-      const oldTx = transactions.find((t) => t.id === existingId);
-      if (oldTx?.goalId && oldTx.bucket === 'savings') {
-        const g = goals.find((item) => item.id === oldTx.goalId);
+      await upsertTransaction(user.uid, data, existingId);
+
+      const txMonth = data.date.slice(0, 7);
+      if (txMonth && txMonth !== monthKey) {
+        setMonthKey(txMonth);
+      }
+    }, 'Impossible d’enregistrer l’opération.');
+  };
+
+  const handleDeleteTransaction = (id: string) => {
+    if (!user) return;
+    void runSafeAsync(async () => {
+      const target = transactions.find((t) => t.id === id);
+      if (target?.goalId && target.bucket === 'savings') {
+        const g = goals.find((item) => item.id === target.goalId);
         if (g) {
           await updateGoalCurrentAmount(
             user.uid,
             g.id,
-            Math.max(0, g.currentAmount - oldTx.amount)
+            Math.max(0, g.currentAmount - target.amount)
           );
         }
       }
-      if (data.goalId && data.bucket === 'savings') {
-        const g = goals.find((item) => item.id === data.goalId);
-        if (g) {
-          const base =
-            oldTx?.goalId === data.goalId && oldTx.bucket === 'savings'
-              ? Math.max(0, g.currentAmount - oldTx.amount)
-              : g.currentAmount;
-          await updateGoalCurrentAmount(user.uid, g.id, base + data.amount);
-        }
-      }
-    } else if (data.goalId && data.bucket === 'savings') {
-      const g = goals.find((item) => item.id === data.goalId);
-      if (g) {
-        await updateGoalCurrentAmount(user.uid, g.id, g.currentAmount + data.amount);
-      }
-    }
-
-    await upsertTransaction(user.uid, data, existingId);
-
-    const txMonth = data.date.slice(0, 7);
-    if (txMonth && txMonth !== monthKey) {
-      setMonthKey(txMonth);
-    }
+      await deleteTransactionDoc(user.uid, id);
+    }, 'Impossible de supprimer l’opération.');
   };
 
-  const handleDeleteTransaction = async (id: string) => {
-    if (!user) return;
-    const target = transactions.find((t) => t.id === id);
-    if (target?.goalId && target.bucket === 'savings') {
-      const g = goals.find((item) => item.id === target.goalId);
-      if (g) {
-        await updateGoalCurrentAmount(
-          user.uid,
-          g.id,
-          Math.max(0, g.currentAmount - target.amount)
-        );
-      }
-    }
-    await deleteTransactionDoc(user.uid, id);
-  };
-
-  const handleSaveGoal = async (
+  const handleSaveGoal = (
     data: Omit<SavingsGoal, 'id' | 'createdAt'>,
     existingId?: string
   ) => {
     if (!user) return;
-    await upsertGoal(user.uid, data, existingId);
+    void runSafeAsync(
+      () => upsertGoal(user.uid, data, existingId),
+      'Impossible d’enregistrer l’objectif d’épargne.'
+    );
   };
 
-  const handleDeleteGoal = async (id: string) => {
+  const handleDeleteGoal = (id: string) => {
     if (!user) return;
-    await deleteGoalDoc(user.uid, id);
+    void runSafeAsync(
+      () => deleteGoalDoc(user.uid, id),
+      'Impossible de supprimer l’objectif d’épargne.'
+    );
   };
 
-  const handleDepositToGoal = async (goalId: string, amount: number) => {
+  const handleDepositToGoal = (goalId: string, amount: number) => {
     if (!user) return;
     const goal = goals.find((g) => g.id === goalId);
     if (!goal || amount <= 0) return;
 
-    const today = getTodayISO();
-    const txDate = today.startsWith(monthKey) ? today : `${monthKey}-15`;
+    void runSafeAsync(async () => {
+      const today = getTodayISO();
+      const txDate = today.startsWith(monthKey) ? today : `${monthKey}-15`;
 
-    await upsertTransaction(user.uid, {
-      date: txDate,
-      label: `Versement : ${goal.title}`,
-      amount,
-      kind: 'expense',
-      bucket: 'savings',
-      category: 'Versement objectif',
-      goalId,
-    });
-    await updateGoalCurrentAmount(user.uid, goalId, goal.currentAmount + amount);
+      await upsertTransaction(user.uid, {
+        date: txDate,
+        label: `Versement : ${goal.title}`,
+        amount,
+        kind: 'expense',
+        bucket: 'savings',
+        category: 'Versement objectif',
+        goalId,
+      });
+      await updateGoalCurrentAmount(user.uid, goalId, goal.currentAmount + amount);
+    }, 'Impossible d’enregistrer le versement sur cet objectif.');
   };
 
-  const handleSaveReminder = async (
+  const handleSaveReminder = (
     data: Omit<PaymentReminder, 'id' | 'createdAt'>,
     existingId?: string
   ) => {
     if (!user) return;
-    await upsertReminder(user.uid, data, existingId);
+    void runSafeAsync(
+      () => upsertReminder(user.uid, data, existingId),
+      'Impossible d’enregistrer le rappel de paiement.'
+    );
   };
 
-  const handleMarkReminderPaid = async (reminder: PaymentReminder) => {
+  const handleMarkReminderPaid = (reminder: PaymentReminder) => {
     if (!user) return;
-    const today = getTodayISO();
-    await upsertTransaction(user.uid, {
-      date: today,
-      label: reminder.title,
-      amount: reminder.amount,
-      kind: 'expense',
-      bucket: reminder.bucket,
-      category: reminder.category,
-      note: reminder.note ? `${reminder.note} (Rappel payé)` : 'Paiement depuis rappel',
-    });
+    void runSafeAsync(async () => {
+      const today = getTodayISO();
+      await upsertTransaction(user.uid, {
+        date: today,
+        label: reminder.title,
+        amount: reminder.amount,
+        kind: 'expense',
+        bucket: reminder.bucket,
+        category: reminder.category,
+        note: reminder.note ? `${reminder.note} (Rappel payé)` : 'Paiement depuis rappel',
+      });
 
-    const isOnce = reminder.frequency === 'once';
-    const nextDue = isOnce
-      ? reminder.dueDate
-      : computeNextDueDate(reminder.dueDate, reminder.frequency);
+      const isOnce = reminder.frequency === 'once';
+      const nextDue = isOnce
+        ? reminder.dueDate
+        : computeNextDueDate(reminder.dueDate, reminder.frequency);
 
-    await markReminderPaidInFirestore(
-      user.uid,
-      reminder.id,
-      nextDue,
-      today,
-      !isOnce
-    );
+      await markReminderPaidInFirestore(
+        user.uid,
+        reminder.id,
+        nextDue,
+        today,
+        !isOnce
+      );
+    }, 'Impossible de valider le paiement du rappel.');
   };
 
   const handleNavigate = (
@@ -462,7 +540,7 @@ export default function App() {
           </nav>
         </div>
 
-        {/* Sidebar Footer: Account, Slogan & Theme */}
+        {/* Sidebar Footer */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
           <div className="px-2">
             <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
@@ -551,7 +629,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0 relative">
-            {/* Functional Payment Reminder Notification Popover */}
             <button
               type="button"
               onClick={() => setNotifPopoverOpen((v) => !v)}
@@ -631,13 +708,39 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 w-full max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
+          {actionError && (
+            <div
+              role="alert"
+              className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+            >
+              <div className="flex items-center gap-2.5">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <span>{actionError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActionError('')}
+                aria-label="Fermer l’alerte"
+                className="rounded p-1 hover:bg-red-100 dark:hover:bg-red-900/40"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           {dataLoading && !profile ? (
             <div className="py-16 text-center text-sm text-slate-500 dark:text-slate-400">
               Synchronisation de vos données Firestore...
             </div>
           ) : (
-            <>
+            <Suspense
+              fallback={
+                <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
+                  Chargement de la vue...
+                </div>
+              }
+            >
               {activeView === 'dashboard' && (
                 <DashboardView
                   monthKey={monthKey}
@@ -680,8 +783,18 @@ export default function App() {
                   monthKey={monthKey}
                   transactions={transactions}
                   customCategories={customCategories}
-                  onCreateCategory={(data) => createCustomCategory(user.uid, data)}
-                  onDeleteCategory={(id) => deleteCustomCategoryDoc(user.uid, id)}
+                  onCreateCategory={(data) => {
+                    void runSafeAsync(
+                      () => createCustomCategory(user.uid, data),
+                      'Impossible de créer la catégorie.'
+                    );
+                  }}
+                  onDeleteCategory={(id) => {
+                    void runSafeAsync(
+                      () => deleteCustomCategoryDoc(user.uid, id),
+                      'Impossible de supprimer la catégorie.'
+                    );
+                  }}
                   onFilterByCategory={(cat) =>
                     handleNavigate('transactions', undefined, cat)
                   }
@@ -694,9 +807,12 @@ export default function App() {
                   browserNotificationsEnabled={
                     profile?.browserNotificationsEnabled ?? false
                   }
-                  onToggleBrowserNotifications={(enabled) =>
-                    updateUserBrowserNotifications(user.uid, enabled)
-                  }
+                  onToggleBrowserNotifications={(enabled) => {
+                    void runSafeAsync(
+                      () => updateUserBrowserNotifications(user.uid, enabled),
+                      'Impossible de mettre à jour les préférences de notification.'
+                    );
+                  }}
                   onAddReminder={() => {
                     setEditingRem(null);
                     setRemModalOpen(true);
@@ -705,10 +821,18 @@ export default function App() {
                     setEditingRem(rem);
                     setRemModalOpen(true);
                   }}
-                  onDeleteReminder={(id) => deleteReminderDoc(user.uid, id)}
-                  onToggleEnabled={(id, enabled) =>
-                    toggleReminderEnabled(user.uid, id, enabled)
-                  }
+                  onDeleteReminder={(id) => {
+                    void runSafeAsync(
+                      () => deleteReminderDoc(user.uid, id),
+                      'Impossible de supprimer le rappel.'
+                    );
+                  }}
+                  onToggleEnabled={(id, enabled) => {
+                    void runSafeAsync(
+                      () => toggleReminderEnabled(user.uid, id, enabled),
+                      'Impossible de modifier le statut du rappel.'
+                    );
+                  }}
                   onMarkPaid={handleMarkReminderPaid}
                 />
               )}
@@ -718,7 +842,12 @@ export default function App() {
                   monthKey={monthKey}
                   summary={summary}
                   split={split}
-                  onUpdateSplit={(newSplit) => updateUserSplit(user.uid, newSplit)}
+                  onUpdateSplit={(newSplit) => {
+                    void runSafeAsync(
+                      () => updateUserSplit(user.uid, newSplit),
+                      'Impossible d’enregistrer la répartition 50/30/20.'
+                    );
+                  }}
                   onFilterTransactions={(bucket) =>
                     handleNavigate('transactions', bucket)
                   }
@@ -750,16 +879,12 @@ export default function App() {
                     await clearUserSubcollections(user.uid);
                     await writeStoreToFirestore(user.uid, imported);
                   }}
-                  onLoadDemo={async () => {
-                    await clearUserSubcollections(user.uid);
-                    await writeStoreToFirestore(user.uid, createSeedData());
-                  }}
                   onClearAll={async () => {
                     await clearUserSubcollections(user.uid);
                   }}
                 />
               )}
-            </>
+            </Suspense>
           )}
         </main>
       </div>
@@ -772,7 +897,12 @@ export default function App() {
           setEditingTx(null);
         }}
         onSave={handleSaveTransaction}
-        onCreateCategory={(data) => createCustomCategory(user.uid, data)}
+        onCreateCategory={(data) => {
+          void runSafeAsync(
+            () => createCustomCategory(user.uid, data),
+            'Impossible de créer la catégorie personnalisée.'
+          );
+        }}
         editingTransaction={editingTx}
         goals={goals}
         customCategories={customCategories}

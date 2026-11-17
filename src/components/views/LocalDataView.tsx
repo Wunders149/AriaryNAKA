@@ -4,7 +4,6 @@ import {
   Cloud,
   Download,
   FileSpreadsheet,
-  RotateCcw,
   Trash2,
   Upload,
 } from 'lucide-react';
@@ -19,7 +18,6 @@ interface LocalDataViewProps {
   profile: UserProfile;
   store: FinanceStore;
   onImportStore: (imported: FinanceStore) => Promise<void>;
-  onLoadDemo: () => Promise<void>;
   onClearAll: () => Promise<void>;
 }
 
@@ -27,7 +25,6 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
   profile,
   store,
   onImportStore,
-  onLoadDemo,
   onClearAll,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,7 +80,8 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
       if (!validated) {
         setFeedback({
           type: 'error',
-          message: 'Fichier invalide. Veuillez sélectionner une sauvegarde JSON Ariary 50/30/20 valide.',
+          message:
+            'Fichier invalide. Veuillez sélectionner une sauvegarde JSON Ariary 50/30/20 valide.',
         });
         return;
       }
@@ -92,7 +90,12 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
         await onImportStore(validated);
         setFeedback({
           type: 'success',
-          message: `${validated.transactions.length} opérations et ${validated.goals.length} objectifs importés dans votre espace Firestore.`,
+          message: `${validated.transactions.length} opérations et ${validated.goals.length} objectifs restaurés dans votre espace Firestore.`,
+        });
+      } catch {
+        setFeedback({
+          type: 'error',
+          message: 'Échec de l’importation vers Firestore. Vérifiez votre connexion.',
         });
       } finally {
         setBusy(false);
@@ -110,6 +113,11 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
       setFeedback({
         type: 'success',
         message: 'Vos données locales précédentes ont été importées dans votre compte Firestore.',
+      });
+    } catch {
+      setFeedback({
+        type: 'error',
+        message: 'Impossible d’importer les données locales. Vérifiez votre connexion.',
       });
     } finally {
       setBusy(false);
@@ -244,7 +252,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
               Restaurer une sauvegarde
             </h2>
             <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Importez un fichier JSON Ariary 50/30/20 pour synchroniser ses opérations, objectifs, rappels et catégories dans votre compte Firestore.
+              Importez un fichier JSON Ariary 50/30/20 pour restaurer vos opérations, objectifs, rappels et catégories dans votre compte Firestore.
             </p>
           </div>
 
@@ -269,42 +277,20 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
         </section>
       </div>
 
-      {/* Reset / Demo Controls */}
+      {/* Reset Workspace */}
       <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
         <h2 className="font-display text-base font-semibold text-slate-900 dark:text-slate-100">
-          Gestion de l’espace de travail
+          Réinitialisation du compte
         </h2>
         <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-          Commencez avec un livre de comptes vierge ou rechargez le jeu de démonstration dans votre compte.
+          Téléchargez d’abord une sauvegarde JSON ci-dessus avant de supprimer vos enregistrements. Cette opération supprime vos opérations, objectifs, rappels et catégories personnalisées.
         </p>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              try {
-                await onLoadDemo();
-                setConfirmClear(false);
-                setFeedback({
-                  type: 'success',
-                  message: 'Données de démonstration chargées sur votre compte Firestore.',
-                });
-              } finally {
-                setBusy(false);
-              }
-            }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Charger l’exemple de démonstration
-          </button>
-
           {confirmClear ? (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-medium text-red-700 dark:text-red-400">
-                Effacer toutes vos données Firestore ?
+                Confirmer la suppression définitive de toutes vos données ?
               </span>
               <button
                 type="button"
@@ -316,7 +302,12 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
                     setConfirmClear(false);
                     setFeedback({
                       type: 'success',
-                      message: 'Toutes vos données ont été effacées. Votre budget repart à zéro.',
+                      message: 'Toutes vos données ont été effacées. Votre compte repart à zéro.',
+                    });
+                  } catch {
+                    setFeedback({
+                      type: 'error',
+                      message: 'Erreur lors de la suppression des données Firestore.',
                     });
                   } finally {
                     setBusy(false);
@@ -342,7 +333,7 @@ export const LocalDataView: React.FC<LocalDataViewProps> = ({
               className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900/60 dark:bg-slate-950 dark:text-red-400 dark:hover:bg-red-950/40"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Repartir à zéro (effacer tout)
+              Effacer toutes les données du compte
             </button>
           )}
         </div>

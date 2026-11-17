@@ -3,6 +3,7 @@ import {
   Timestamp,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -24,7 +25,6 @@ import {
   UserProfile,
 } from '../types/finance';
 import { createId } from '../utils/format';
-import { createSeedData } from '../utils/storage';
 import { OperationType, db, handleFirestoreError } from './client';
 
 function sanitizeId(raw: string, prefix: string): string {
@@ -67,10 +67,6 @@ export async function ensureUserProfile(user: User): Promise<void> {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-
-      // Seed starter dataset for brand new accounts so charts & rule 50/30/20 are immediately alive
-      const seed = createSeedData();
-      await writeStoreToFirestore(user.uid, seed);
     }
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, userPath);
@@ -79,7 +75,8 @@ export async function ensureUserProfile(user: User): Promise<void> {
 
 export function subscribeToUserProfile(
   uid: string,
-  onData: (profile: UserProfile) => void
+  onData: (profile: UserProfile) => void,
+  onError?: (err: Error) => void
 ): () => void {
   const path = `users/${uid}`;
   return onSnapshot(
@@ -99,14 +96,19 @@ export function subscribeToUserProfile(
       });
     },
     (error) => {
-      handleFirestoreError(error, OperationType.GET, path);
+      try {
+        handleFirestoreError(error, OperationType.GET, path);
+      } catch (wrapped) {
+        if (onError && wrapped instanceof Error) onError(wrapped);
+      }
     }
   );
 }
 
 export function subscribeToTransactions(
   uid: string,
-  onData: (items: Transaction[]) => void
+  onData: (items: Transaction[]) => void,
+  onError?: (err: Error) => void
 ): () => void {
   const path = `users/${uid}/transactions`;
   const q = query(collection(db, 'users', uid, 'transactions'), where('uid', '==', uid));
@@ -121,24 +123,33 @@ export function subscribeToTransactions(
           label: String(d.label),
           amount: Number(d.amount),
           kind: d.kind === 'income' ? 'income' : 'expense',
-          bucket: d.kind === 'income' ? undefined : (d.bucket as Transaction['bucket']) ?? 'needs',
+          bucket:
+            d.kind === 'income'
+              ? undefined
+              : ((d.bucket as Transaction['bucket']) ?? 'needs'),
           category: String(d.category),
           note: typeof d.note === 'string' && d.note.length > 0 ? d.note : undefined,
-          goalId: typeof d.goalId === 'string' && d.goalId.length > 0 ? d.goalId : undefined,
+          goalId:
+            typeof d.goalId === 'string' && d.goalId.length > 0 ? d.goalId : undefined,
           createdAt: isoFromTimestamp(d.createdAt),
         };
       });
       onData(list);
     },
     (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
+      try {
+        handleFirestoreError(error, OperationType.LIST, path);
+      } catch (wrapped) {
+        if (onError && wrapped instanceof Error) onError(wrapped);
+      }
     }
   );
 }
 
 export function subscribeToGoals(
   uid: string,
-  onData: (items: SavingsGoal[]) => void
+  onData: (items: SavingsGoal[]) => void,
+  onError?: (err: Error) => void
 ): () => void {
   const path = `users/${uid}/goals`;
   const q = query(collection(db, 'users', uid, 'goals'), where('uid', '==', uid));
@@ -166,14 +177,19 @@ export function subscribeToGoals(
       onData(list);
     },
     (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
+      try {
+        handleFirestoreError(error, OperationType.LIST, path);
+      } catch (wrapped) {
+        if (onError && wrapped instanceof Error) onError(wrapped);
+      }
     }
   );
 }
 
 export function subscribeToReminders(
   uid: string,
-  onData: (items: PaymentReminder[]) => void
+  onData: (items: PaymentReminder[]) => void,
+  onError?: (err: Error) => void
 ): () => void {
   const path = `users/${uid}/reminders`;
   const q = query(collection(db, 'users', uid, 'reminders'), where('uid', '==', uid));
@@ -203,14 +219,19 @@ export function subscribeToReminders(
       onData(list);
     },
     (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
+      try {
+        handleFirestoreError(error, OperationType.LIST, path);
+      } catch (wrapped) {
+        if (onError && wrapped instanceof Error) onError(wrapped);
+      }
     }
   );
 }
 
 export function subscribeToCategories(
   uid: string,
-  onData: (items: CustomCategory[]) => void
+  onData: (items: CustomCategory[]) => void,
+  onError?: (err: Error) => void
 ): () => void {
   const path = `users/${uid}/categories`;
   const q = query(collection(db, 'users', uid, 'categories'), where('uid', '==', uid));
@@ -223,7 +244,10 @@ export function subscribeToCategories(
           id: docSnap.id,
           name: String(d.name),
           kind: d.kind === 'income' ? 'income' : 'expense',
-          bucket: d.kind === 'income' ? undefined : (d.bucket as CustomCategory['bucket']) ?? 'needs',
+          bucket:
+            d.kind === 'income'
+              ? undefined
+              : ((d.bucket as CustomCategory['bucket']) ?? 'needs'),
           color: String(d.color ?? '#0F766E'),
           createdAt: isoFromTimestamp(d.createdAt),
         };
@@ -231,7 +255,11 @@ export function subscribeToCategories(
       onData(list);
     },
     (error) => {
-      handleFirestoreError(error, OperationType.LIST, path);
+      try {
+        handleFirestoreError(error, OperationType.LIST, path);
+      } catch (wrapped) {
+        if (onError && wrapped instanceof Error) onError(wrapped);
+      }
     }
   );
 }
@@ -294,12 +322,19 @@ function buildTransactionPayload(
     category: clampString(data.category, 60),
     updatedAt: serverTimestamp(),
   };
+
   if (data.note && data.note.trim().length > 0) {
     payload.note = clampString(data.note, 240);
+  } else if (!isCreate) {
+    payload.note = deleteField();
   }
+
   if (data.kind === 'expense' && data.bucket === 'savings' && data.goalId) {
     payload.goalId = sanitizeId(data.goalId, 'goal');
+  } else if (!isCreate) {
+    payload.goalId = deleteField();
   }
+
   if (isCreate) {
     payload.createdAt = serverTimestamp();
   }
@@ -362,9 +397,13 @@ function buildGoalPayload(
     priority: data.priority,
     updatedAt: serverTimestamp(),
   };
+
   if (data.description && data.description.trim().length > 0) {
     payload.description = clampString(data.description, 240);
+  } else if (!isCreate) {
+    payload.description = deleteField();
   }
+
   if (isCreate) {
     payload.createdAt = serverTimestamp();
   }
@@ -417,10 +456,45 @@ export async function updateGoalCurrentAmount(
   }
 }
 
+export async function detachGoalFromTransactions(
+  uid: string,
+  goalId: string
+): Promise<void> {
+  const path = `users/${uid}/transactions`;
+  try {
+    const q = query(collection(db, 'users', uid, 'transactions'), where('uid', '==', uid));
+    const snap = await getDocs(q);
+    let batch = writeBatch(db);
+    let count = 0;
+
+    for (const d of snap.docs) {
+      if (d.data().goalId === goalId) {
+        batch.update(d.ref, {
+          goalId: deleteField(),
+          updatedAt: serverTimestamp(),
+        });
+        count++;
+        if (count >= 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          count = 0;
+        }
+      }
+    }
+
+    if (count > 0) {
+      await batch.commit();
+    }
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+}
+
 export async function deleteGoalDoc(uid: string, goalId: string): Promise<void> {
   const safeId = sanitizeId(goalId, 'goal');
   const path = `users/${uid}/goals/${safeId}`;
   try {
+    await detachGoalFromTransactions(uid, safeId);
     await deleteDoc(doc(db, 'users', uid, 'goals', safeId));
   } catch (error) {
     handleFirestoreError(error, OperationType.DELETE, path);
@@ -445,12 +519,19 @@ function buildReminderPayload(
     enabled: Boolean(data.enabled),
     updatedAt: serverTimestamp(),
   };
+
   if (data.lastPaidDate && data.lastPaidDate.trim().length > 0) {
     payload.lastPaidDate = clampString(data.lastPaidDate, 10);
+  } else if (!isCreate) {
+    payload.lastPaidDate = deleteField();
   }
+
   if (data.note && data.note.trim().length > 0) {
     payload.note = clampString(data.note, 240);
+  } else if (!isCreate) {
+    payload.note = deleteField();
   }
+
   if (isCreate) {
     payload.createdAt = serverTimestamp();
   }
@@ -571,11 +652,11 @@ export async function deleteCustomCategoryDoc(
   }
 }
 
-// --- Bulk Import / Clear / Seed ---
+// --- Bulk Import / Clear ---
 export async function clearUserSubcollections(uid: string): Promise<void> {
   const subcollections = ['transactions', 'goals', 'reminders', 'categories'] as const;
   try {
-    const batch = writeBatch(db);
+    let batch = writeBatch(db);
     let count = 0;
     for (const colName of subcollections) {
       const q = query(collection(db, 'users', uid, colName), where('uid', '==', uid));
@@ -585,6 +666,7 @@ export async function clearUserSubcollections(uid: string): Promise<void> {
         count++;
         if (count >= 450) {
           await batch.commit();
+          batch = writeBatch(db);
           count = 0;
         }
       }
